@@ -304,7 +304,7 @@
       { code: 'EA',  name: 'Enfant Adapté',    color: '#06b6d4', info: 'Conformité, prudence, recherche d’approbation.' },
     ];
 
-    // 25 items (5 par état fonctionnel)
+    // 60 items
     const questions = [
       // Parent Normatif (PNO)
       { id: 1, category: 'PNO', text: "J'insiste pour que les règles soient respectées à la lettre." },
@@ -367,7 +367,7 @@
                   <input
                     type="range"
                     min="0"
-                    max="5"
+                    max="3"
                     step="1"
                     value="3"
                     data-index="${index}"
@@ -475,11 +475,11 @@
 
       // Group into Parent / Adulte / Enfant, normalize by maxima
       const raw = {
-        Parent: sums.PNO + sums.PNR, // max 10 * 5 = 50
-        Adulte: sums.A,              // max 5  * 5 = 25
-        Enfant: sums.EL + sums.EA    // max 10 * 5 = 50
+        Parent: sums.PNO + sums.PNR, // max 10 * 3 = 30
+        Adulte: sums.A,              // max 5  * 3 = 15
+        Enfant: sums.EL + sums.EA    // max 10 * 3 = 30
       };
-      const maxes = { Parent: 50, Adulte: 25, Enfant: 50 };
+      const maxes = { Parent: 30, Adulte: 15, Enfant: 30 };
       const pct = {
         Parent: Math.round((raw.Parent / maxes.Parent) * 100),
         Adulte: Math.round((raw.Adulte / maxes.Adulte) * 100),
