@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Egogramme – États du Moi (TA)</title>
+  <meta name="description" content="Étude des États du Moi (TA) + Test de l’egogramme. Calcule ton profil Parent, Adulte ou Enfant avec un design moderne." />
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS (Play CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              200: '#c7d2fe',
+              300: '#a5b4fc',
+              400: '#818cf8',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81'
+            }
+          },
+          boxShadow: {
+            glow: '0 10px 30px rgba(99,102,241,.25)',
+          },
+          keyframes: {
+            floaty: {
+              '0%, 100%': { transform: 'translateY(0px) translateX(0px)' },
+              '50%': { transform: 'translateY(-12px) translateX(6px)' },
+            },
+            pulseGlow: {
+              '0%, 100%': { boxShadow: '0 0 0 0 rgba(99,102,241,0.6)' },
+              '50%': { boxShadow: '0 0 0 12px rgba(99,102,241,0)' }
+            }
+          },
+          animation: {
+            floaty: 'floaty 8s ease-in-out infinite',
+            pulseGlow: 'pulseGlow 2.5s ease-in-out infinite',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Chart.js for nice results (optional but included) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* Glass blur for backgrounds */
+    .glass {
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    /* Range input styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 0.6rem;
+      background: linear-gradient(90deg, #06b6d4, #8b5cf6, #ec4899);
+      border-radius: 9999px;
+      outline: none;
+      opacity: 0.95;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: white;
+      border: 3px solid #8b5cf6;
+      box-shadow: 0 6px 16px rgba(0,0,0,.25);
+      cursor: pointer;
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: white;
+      border: 3px solid #8b5cf6;
+      box-shadow: 0 6px 16px rgba(0,0,0,.25);
+      cursor: pointer;
+    }
+    /* Bubble above slider */
+    .value-bubble {
+      transform: translateX(-50%);
+      transition: left .15s ease;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+
+<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-fuchsia-400 selection:text-slate-900">
+  <!-- Decorative background blobs -->
+  <div aria-hidden="true" class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute top-[-10%] left-[-10%] w-[40rem] h-[40rem] rounded-full bg-fuchsia-500/20 blur-3xl animate-floaty"></div>
+    <div class="absolute bottom-[-15%] right-[-5%] w-[45rem] h-[45rem] rounded-full bg-cyan-400/20 blur-3xl animate-floaty" style="animation-delay: 1.2s"></div>
+    <div class="absolute top-[20%] right-[20%] w-[26rem] h-[26rem] rounded-full bg-indigo-500/20 blur-3xl animate-floaty" style="animation-delay: 2s"></div>
+  </div>
+
+  <header class="relative z-10">
+    <div class="max-w-6xl mx-auto px-4 pt-6 pb-4">
+      <!-- NOUVEAU : Barre de navigation avec logo -->
+      <nav class="flex items-center justify-between">
+        <a href="#" class="flex items-center gap-3 text-white font-bold" aria-label="Accueil Egogramme">
+          <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="40" r="20" class="text-indigo-400" fill="currentColor" opacity="0.8"/>
+            <circle cx="35" cy="65" r="18" class="text-fuchsia-400" fill="currentColor" opacity="0.8"/>
+            <circle cx="65" cy="65" r="18" class="text-cyan-400" fill="currentColor" opacity="0.8"/>
+          </svg>
+          <span class="text-lg">Egogramme</span>
+        </a>
+        <a href="#developer-section" class="px-4 py-2 text-sm rounded-lg bg-white/5 hover:bg-white/10 ring-1 ring-white/10 transition">
+          Infos Développeur
+        </a>
+      </nav>
+      <!-- Fin de la barre de navigation -->
+
+      <div class="pt-10">
+        <div class="inline-flex items-center gap-2 rounded-full px-3 py-1 bg-white/10 glass ring-1 ring-white/10 mb-4">
+          <span class="w-2 h-2 bg-emerald-400 rounded-full animate-ping"></span>
+          <span class="text-xs tracking-wide uppercase text-white/80">Egogramme • Analyse des États du Moi</span>
+        </div>
+
+        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight">
+          Évalue ton profil <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-400 to-fuchsia-400">Parent • Adulte • Enfant</span>
+        </h1>
+        <p class="mt-4 text-slate-300 max-w-3xl">
+          Étude des états du Moi fonctionnels + Test de l’egogramme. Réponds aux 25 items et découvre ton état du Moi dominant, avec un graphique clair et des pistes d’interprétation.
+        </p>
+        <p class="mt-2 text-xs text-slate-400">
+          Note: outil d’auto-évaluation à visée pédagogique – ne remplace pas une évaluation clinique.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <main class="relative z-10">
+    <div class="max-w-6xl mx-auto px-4 pb-20">
+      <!-- Card -->
+      <section class="glass rounded-3xl bg-white/10 ring-1 ring-white/15 shadow-glow">
+        <!-- Progress header -->
+        <div class="p-5 sm:p-7 border-b border-white/10">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div class="flex-1">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm text-slate-300">Progression</span>
+                <span id="progressText" class="text-sm font-semibold text-white">0 / 25</span>
+              </div>
+              <div class="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                <div id="progressBar" class="h-full w-0 rounded-full bg-gradient-to-r from-cyan-400 via-indigo-400 to-fuchsia-400 transition-all"></div>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button id="btnReset" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition border border-white/10 text-slate-200">
+                ↺ Réinitialiser
+              </button>
+              <button id="btnCalculate" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-cyan-400 text-slate-900 font-semibold hover:opacity-95 shadow-glow animate-pulseGlow">
+                Calculer mes résultats
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Questionnaire -->
+        <div id="questionContainer" class="p-5 sm:p-8 grid md:grid-cols-2 gap-6">
+          <!-- JS will inject questions here -->
+        </div>
+
+        <!-- Results -->
+        <div id="resultsSection" class="px-5 sm:px-8 pb-10 hidden">
+          <div class="mt-2 grid lg:grid-cols-5 gap-6">
+            <!-- Main result -->
+            <div class="lg:col-span-2 rounded-2xl p-6 bg-white/10 ring-1 ring-white/10">
+              <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold">Résultat dominant</h3>
+                <span id="dominantBadge" class="text-xs px-2 py-1 rounded-full bg-white/10 border border-white/10 text-slate-200">—</span>
+              </div>
+              <div class="mt-4 relative">
+                <div class="absolute inset-0 blur-2xl bg-gradient-to-br from-fuchsia-400/20 via-indigo-400/20 to-cyan-400/20 rounded-2xl"></div>
+                <div class="relative rounded-2xl p-6 bg-slate-900/40 ring-1 ring-white/10">
+                  <div class="text-sm text-slate-300">État du Moi</div>
+                  <div id="dominantTitle" class="mt-1 text-3xl font-extrabold">—</div>
+                  <div id="dominantEmoji" class="text-4xl mt-1">🤔</div>
+                  <div id="dominantDesc" class="mt-3 text-slate-300 text-sm">—</div>
+                </div>
+              </div>
+
+              <div class="mt-6">
+                <h4 class="font-semibold text-sm mb-2">Conseils rapides</h4>
+                <ul id="tipsList" class="space-y-2 text-sm text-slate-300">
+                  <!-- JS tips -->
+                </ul>
+              </div>
+
+              <div class="mt-6 flex gap-2">
+                <button id="btnPrint" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition border border-white/10 text-slate-200">
+                  ⬇︎ Imprimer / PDF
+                </button>
+              </div>
+            </div>
+
+            <!-- Charts and breakdown -->
+            <div class="lg:col-span-3 rounded-2xl p-6 bg-white/10 ring-1 ring-white/10">
+              <h3 class="text-lg font-semibold mb-4">Répartition des États du Moi</h3>
+              <div class="grid sm:grid-cols-3 gap-4 mb-6">
+                <div class="rounded-xl p-4 bg-slate-900/40 ring-1 ring-white/10">
+                  <div class="text-xs text-slate-400">Parent</div>
+                  <div id="scoreParent" class="text-2xl font-bold">—%</div>
+                </div>
+                <div class="rounded-xl p-4 bg-slate-900/40 ring-1 ring-white/10">
+                  <div class="text-xs text-slate-400">Adulte</div>
+                  <div id="scoreAdulte" class="text-2xl font-bold">—%</div>
+                </div>
+                <div class="rounded-xl p-4 bg-slate-900/40 ring-1 ring-white/10">
+                  <div class="text-xs text-slate-400">Enfant</div>
+                  <div id="scoreEnfant" class="text-2xl font-bold">—%</div>
+                </div>
+              </div>
+
+              <canvas id="resultChart" height="160" class="!h-64"></canvas>
+
+              <div class="mt-6">
+                <h4 class="font-semibold text-sm mb-2">États fonctionnels (détail)</h4>
+                <div id="functionalBreakdown" class="grid sm:grid-cols-5 gap-3 text-sm">
+                  <!-- mini bars injected here -->
+                </div>
+                <p class="mt-3 text-xs text-slate-400">
+                  Parent = Parent Normatif + Parent Nourricier • Enfant = Enfant Libre + Enfant Adapté • Scores normalisés (%).
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+      
+      <!-- NOUVEAU : Section développeur -->
+      <section id="developer-section" class="pt-20">
+        <div class="text-center">
+            <h2 class="text-3xl font-extrabold tracking-tight">Pour les Développeurs</h2>
+            <p class="mt-3 max-w-2xl mx-auto text-slate-300">
+                Ce projet est un outil pédagogique et open-source construit avec des technologies modernes.
+            </p>
+        </div>
+        <div class="mt-8 max-w-3xl mx-auto glass rounded-3xl bg-white/10 ring-1 ring-white/15 p-8">
+             <h3 class="font-semibold text-lg mb-4">Stack Technique</h3>
+             <div class="flex flex-wrap gap-3">
+                <span class="inline-flex items-center gap-2 text-sm font-medium px-3 py-1 rounded-full bg-slate-800/60 ring-1 ring-white/10 text-cyan-300">HTML5</span>
+                <span class="inline-flex items-center gap-2 text-sm font-medium px-3 py-1 rounded-full bg-slate-800/60 ring-1 ring-white/10 text-indigo-300">Tailwind CSS</span>
+                <span class="inline-flex items-center gap-2 text-sm font-medium px-3 py-1 rounded-full bg-slate-800/60 ring-1 ring-white/10 text-fuchsia-300">JavaScript (ES6)</span>
+                <span class="inline-flex items-center gap-2 text-sm font-medium px-3 py-1 rounded-full bg-slate-800/60 ring-1 ring-white/10 text-emerald-300">Chart.js</span>
+             </div>
+             <div class="my-6 border-t border-white/10"></div>
+             <h3 class="font-semibold text-lg mb-4">Contributeurs & Liens</h3>
+             <p class="text-slate-300 mb-5">
+                 Développé par Yassir Lambrass & Anas Elmalyari. Le code source est disponible sur GitHub. N'hésitez pas à contribuer ou à signaler des bugs.
+             </p>
+             <div class="flex flex-col sm:flex-row justify-center gap-4">
+                 <a href="https://github.com/yassir2222/EgoGramme" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 transition ring-1 ring-white/10 text-slate-100 font-semibold">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clip-rule="evenodd" /></svg>
+                    Voir sur GitHub
+                 </a>
+                 <a href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 transition ring-1 ring-white/10 text-slate-100 font-semibold">
+                    Portfolio
+                 </a>
+             </div>
+        </div>
+      </section>
+      <!-- Fin de la section développeur -->
+    </div>
+  </main>
+
+  <footer class="relative z-10">
+    <div class="max-w-6xl mx-auto px-4 pb-10 text-center text-xs text-slate-400">
+      Transactional Analysis (TA) — Modèle pédagogique. Aucun résultat ne constitue un diagnostic.
+    </div>
+  </footer>
+
+  <script>
+    // Categories & questions
+    const labels = ['Jamais', 'Rarement', 'Parfois', 'Souvent', 'Très souvent', 'Toujours'];
+    const emojiScale = ['😶', '🙁', '😐', '🙂', '😄', '🤩'];
+
+    const categories = [
+      { code: 'PNO', name: 'Parent Normatif', color: '#f59e0b', info: 'Normes, règles, standards, jugement.' },
+      { code: 'PNR', name: 'Parent Nourricier', color: '#10b981', info: 'Bienveillance, protection, soutien.' },
+      { code: 'A',   name: 'Adulte',           color: '#6366f1', info: 'Analyse factuelle, décision rationnelle.' },
+      { code: 'EL',  name: 'Enfant Libre',     color: '#ec4899', info: 'Spontanéité, créativité, plaisir.' },
+      { code: 'EA',  name: 'Enfant Adapté',    color: '#06b6d4', info: 'Conformité, prudence, recherche d’approbation.' },
+    ];
+
+    // 25 items (5 par état fonctionnel)
+    const questions = [
+      // Parent Normatif (PNO)
+      { id: 1, category: 'PNO', text: "J'insiste pour que les règles soient respectées à la lettre." },
+      { id: 2, category: 'PNO', text: "Je corrige volontiers les autres quand ils dévient des standards." },
+      { id: 3, category: 'PNO', text: "Je me fie aux principes et traditions même sous pression." },
+      { id: 4, category: 'PNO', text: "Il y a une bonne et une mauvaise manière de faire les choses." },
+      { id: 5, category: 'PNO', text: "J'exprime facilement des jugements sur ce qui est acceptable." },
+
+      // Parent Nourricier (PNR)
+      { id: 6, category: 'PNR', text: "Je rassure et réconforte spontanément les autres." },
+      { id: 7, category: 'PNR', text: "Je propose mon aide avant qu’on me la demande." },
+      { id: 8, category: 'PNR', text: "J’encourage et valorise les efforts, même en cas d’échec." },
+      { id: 9, category: 'PNR', text: "J’écoute avec patience et bienveillance." },
+      { id:10, category: 'PNR', text: "Je protège les autres des situations qui pourraient les blesser." },
+
+      // Adulte (A)
+      { id:11, category: 'A', text: "Je vérifie les faits avant de décider." },
+      { id:12, category: 'A', text: "Je pèse avantages et risques de façon objective." },
+      { id:13, category: 'A', text: "Je m’appuie sur des données plutôt que sur l’humeur du moment." },
+      { id:14, category: 'A', text: "Je reformule pour clarifier et éviter les malentendus." },
+      { id:15, category: 'A', text: "Je change d’avis quand de nouvelles preuves apparaissent." },
+
+      // Enfant Libre (EL)
+      { id:16, category: 'EL', text: "Je laisse libre cours à ma créativité et à mon imagination." },
+      { id:17, category: 'EL', text: "Je prends du plaisir à improviser et à jouer." },
+      { id:18, category: 'EL', text: "J’exprime mes émotions de manière spontanée." },
+      { id:19, category: 'EL', text: "J’ose proposer des idées originales, même si elles surprennent." },
+      { id:20, category: 'EL', text: "Je suis curieux·se et j’explore sans crainte." },
+
+      // Enfant Adapté (EA)
+      { id:21, category: 'EA', text: "Je cherche l’approbation avant d’agir dans des situations inconnues." },
+      { id:22, category: 'EA', text: "J’évite le conflit en m’ajustant aux attentes des autres." },
+      { id:23, category: 'EA', text: "Je m’inquiète de faire des erreurs et d’être jugé·e." },
+      { id:24, category: 'EA', text: "Je suis très attentif·ve aux règles pour ne pas déplaire." },
+      { id:25, category: 'EA', text: "Je m’excuse même quand la faute n’est pas totalement la mienne." },
+    ];
+
+    // Inject questionnaire
+    const container = document.getElementById('questionContainer');
+
+    function questionCardTemplate(q, index) {
+      const cat = categories.find(c => c.code === q.category);
+      return `
+        <div class="rounded-2xl p-5 bg-slate-900/40 ring-1 ring-white/10 hover:ring-white/20 transition">
+          <div class="flex items-start gap-3">
+            <div class="mt-1 w-2.5 h-2.5 rounded-full" style="background:${cat.color}"></div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between gap-2">
+                <h3 class="font-semibold">${q.id}. ${q.text}</h3>
+                <span class="text-xs px-2 py-1 rounded-full border" title="${cat.info}" style="border-color:${cat.color}; color:${cat.color}">
+                  ${cat.name}
+                </span>
+              </div>
+              <div class="mt-4">
+                <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+                  <span>Jamais</span>
+                  <span>Toujours</span>
+                </div>
+                <div class="relative">
+                  <input
+                    type="range"
+                    min="0"
+                    max="5"
+                    step="1"
+                    value="3"
+                    data-index="${index}"
+                    data-touched="false"
+                    class="answer-range"
+                    aria-label="Réponse à la question ${q.id}: ${q.text}"
+                  />
+                  <div class="value-bubble absolute -top-7 left-1/2 text-xs px-2 py-1 rounded-md bg-white/90 text-slate-900 font-semibold shadow"
+                       id="bubble-${index}">—</div>
+                </div>
+                <div class="mt-2 flex items-center justify-between text-xs text-slate-400">
+                  <span id="label-${index}" class="inline-flex items-center gap-1">—</span>
+                  <span id="emoji-${index}" class="text-base">🙂</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderQuestions() {
+      container.innerHTML = questions.map((q, i) => questionCardTemplate(q, i)).join('');
+      // Attach events
+      document.querySelectorAll('.answer-range').forEach((input) => {
+        const idx = input.dataset.index;
+        const bubble = document.getElementById(`bubble-${idx}`);
+        const label = document.getElementById(`label-${idx}`);
+        const emoji = document.getElementById(`emoji-${idx}`);
+        // Initialize bubble position/value
+        updateSliderUI(input, bubble, label, emoji, false);
+        input.addEventListener('input', (e) => {
+          input.dataset.touched = 'true';
+          updateSliderUI(input, bubble, label, emoji, true);
+          updateProgress();
+        });
+        // On resize, reposition bubbles
+        window.addEventListener('resize', () => updateSliderUI(input, bubble, label, emoji, false));
+      });
+      updateProgress();
+    }
+
+    function updateSliderUI(input, bubble, label, emoji, showValue = true) {
+      const value = Number(input.value);
+      const min = Number(input.min);
+      const max = Number(input.max);
+      const percent = (value - min) / (max - min);
+      const thumbOffset = 12; // half thumb width to align center
+      const left = percent * (input.clientWidth - thumbOffset * 2) + thumbOffset;
+      bubble.style.left = `${left}px`;
+      bubble.textContent = showValue ? value : '—';
+      label.innerHTML = showValue ? `${value} • ${labels[value]}` : '—';
+      emoji.textContent = showValue ? emojiScale[value] : '🙂';
+    }
+
+    // Progress handling
+    const progressText = document.getElementById('progressText');
+    const progressBar = document.getElementById('progressBar');
+
+    function updateProgress() {
+      const sliders = document.querySelectorAll('.answer-range');
+      const touched = Array.from(sliders).filter(s => s.dataset.touched === 'true').length;
+      progressText.textContent = `${touched} / ${sliders.length}`;
+      const pct = Math.round((touched / sliders.length) * 100);
+      progressBar.style.width = `${pct}%`;
+    }
+
+    // Calculation
+    const btnCalculate = document.getElementById('btnCalculate');
+    const btnReset = document.getElementById('btnReset');
+    const btnPrint = document.getElementById('btnPrint');
+    const resultsSection = document.getElementById('resultsSection');
+
+    const scoreParent = document.getElementById('scoreParent');
+    const scoreAdulte = document.getElementById('scoreAdulte');
+    const scoreEnfant = document.getElementById('scoreEnfant');
+
+    const dominantTitle = document.getElementById('dominantTitle');
+    const dominantEmoji = document.getElementById('dominantEmoji');
+    const dominantDesc = document.getElementById('dominantDesc');
+    const dominantBadge = document.getElementById('dominantBadge');
+    const tipsList = document.getElementById('tipsList');
+
+    const functionalBreakdown = document.getElementById('functionalBreakdown');
+
+    let egogramChart = null;
+
+    function computeResults() {
+      const sliders = document.querySelectorAll('.answer-range');
+      const totalCount = sliders.length;
+      const touchedCount = Array.from(sliders).filter(s => s.dataset.touched === 'true').length;
+
+      if (touchedCount < totalCount) {
+        // Gentle nudge
+        btnCalculate.classList.add('animate-bounce');
+        setTimeout(() => btnCalculate.classList.remove('animate-bounce'), 800);
+      }
+
+      // Aggregate
+      const sums = { PNO:0, PNR:0, A:0, EL:0, EA:0 };
+      questions.forEach((q, i) => {
+        const v = Number(sliders[i].value || 0);
+        sums[q.category] += v;
+      });
+
+      // Group into Parent / Adulte / Enfant, normalize by maxima
+      const raw = {
+        Parent: sums.PNO + sums.PNR, // max 10 * 5 = 50
+        Adulte: sums.A,              // max 5  * 5 = 25
+        Enfant: sums.EL + sums.EA    // max 10 * 5 = 50
+      };
+      const maxes = { Parent: 50, Adulte: 25, Enfant: 50 };
+      const pct = {
+        Parent: Math.round((raw.Parent / maxes.Parent) * 100),
+        Adulte: Math.round((raw.Adulte / maxes.Adulte) * 100),
+        Enfant: Math.round((raw.Enfant / maxes.Enfant) * 100),
+      };
+
+      // Determine dominant (allow near-ties)
+      const entries = Object.entries(pct).sort((a,b) => b[1]-a[1]);
+      const [topKey, topVal] = entries[0];
+      const [secondKey, secondVal] = entries[1];
+      const nearTie = Math.abs(topVal - secondVal) <= 5;
+
+      const profileMap = {
+        Parent: { emoji: '🧭', desc: "Orientation normes/soin. Tu t’appuies sur repères, valeurs et soutien. Attention à l’excès de jugement ou de surprotection." },
+        Adulte: { emoji: '🧠', desc: "Orientation factuelle. Tu analyses, tu clarifies et décides avec recul. Attention à ne pas refroidir la relation par trop de rationalité." },
+        Enfant: { emoji: '🎈', desc: "Orientation spontanéité/émotion. Tu crées du mouvement, du jeu et de l’expression. Attention aux élans impulsifs ou à l’hyper‑conformité." },
+      };
+
+      // Update main result
+      dominantTitle.textContent = topKey;
+      dominantEmoji.textContent = profileMap[topKey].emoji;
+      dominantDesc.textContent = profileMap[topKey].desc + (nearTie ? ` (proche de ${secondKey.toLowerCase()})` : '');
+      dominantBadge.textContent = nearTie ? 'Profil mixte' : 'Dominant';
+      dominantBadge.className = "text-xs px-2 py-1 rounded-full text-slate-900";
+      dominantBadge.style.background = 'linear-gradient(90deg,#06b6d4,#8b5cf6,#ec4899)';
+
+      scoreParent.textContent = pct.Parent + '%';
+      scoreAdulte.textContent = pct.Adulte + '%';
+      scoreEnfant.textContent = pct.Enfant + '%';
+
+      // Tips
+      const tipsByTop = {
+        Parent: [
+          "Valorise la norme ET la flexibilité: distingue l’essentiel du négociable.",
+          "Transforme la critique en feedback spécifique et soutenant.",
+          "Mobilise l’Adulte pour arbitrer et l’Enfant Libre pour créer."
+        ],
+        Adulte: [
+          "Ancre tes décisions dans les faits, puis valide l’impact humain.",
+          "Pratique l’écoute empathique pour compléter l’analyse.",
+          "Laisse une place à l’intuition et au jeu pour innover."
+        ],
+        Enfant: [
+          "Canalise l’élan créatif par des micro‑règles utiles.",
+          "Garde l’Adulte aux manettes pour les engagements clés.",
+          "Nourris ton Enfant Libre sans t’oublier (repos, limites)."
+        ],
+      };
+      tipsList.innerHTML = tipsByTop[topKey].map(t => `<li class="flex gap-2"><span>•</span><span>${t}</span></li>`).join('');
+
+      // Functional mini bars
+      const funcData = [
+        { key:'PNO', label:'Parent Normatif', color:'#f59e0b', value:sums.PNO, max:25 },
+        { key:'PNR', label:'Parent Nourricier', color:'#10b981', value:sums.PNR, max:25 },
+        { key:'A',   label:'Adulte', color:'#6366f1', value:sums.A, max:25 },
+        { key:'EL',  label:'Enfant Libre', color:'#ec4899', value:sums.EL, max:25 },
+        { key:'EA',  label:'Enfant Adapté', color:'#06b6d4', value:sums.EA, max:25 },
+      ];
+      functionalBreakdown.innerHTML = funcData.map(fd => {
+        const p = Math.round((fd.value / fd.max) * 100);
+        return `
+          <div class="p-3 rounded-xl bg-slate-900/40 ring-1 ring-white/10">
+            <div class="text-xs text-slate-400 mb-1">${fd.label}</div>
+            <div class="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+              <div class="h-full rounded-full" style="width:${p}%; background:${fd.color}"></div>
+            </div>
+            <div class="mt-1 text-xs font-semibold">${p}%</div>
+          </div>
+        `;
+      }).join('');
+
+      // Chart
+      const ctx = document.getElementById('resultChart').getContext('2d');
+      const gradParent = ctx.createLinearGradient(0,0,0,200);
+      gradParent.addColorStop(0,'#fbbf24'); gradParent.addColorStop(1,'#f59e0b');
+      const gradAdulte = ctx.createLinearGradient(0,0,0,200);
+      gradAdulte.addColorStop(0,'#a5b4fc'); gradAdulte.addColorStop(1,'#6366f1');
+      const gradEnfant = ctx.createLinearGradient(0,0,0,200);
+      gradEnfant.addColorStop(0,'#fda4af'); gradEnfant.addColorStop(1,'#ec4899');
+
+      const data = {
+        labels: ['Parent', 'Adulte', 'Enfant'],
+        datasets: [{
+          data: [pct.Parent, pct.Adulte, pct.Enfant],
+          backgroundColor: [gradParent, gradAdulte, gradEnfant],
+          borderRadius: 10
+        }]
+      };
+      const options = {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: { label: ctx => `${ctx.parsed.y}%` }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true, max: 100, ticks: { color: '#cbd5e1' },
+            grid: { color: 'rgba(255,255,255,0.08)' }
+          },
+          x: { ticks: { color: '#cbd5e1' }, grid: { display:false } }
+        }
+      };
+
+      if (egogramChart) {
+        egogramChart.data = data;
+        egogramChart.update();
+      } else {
+        egogramChart = new Chart(ctx, { type: 'bar', data, options });
+      }
+
+      // Show results
+      resultsSection.classList.remove('hidden');
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Buttons
+    btnCalculate.addEventListener('click', computeResults);
+
+    btnReset.addEventListener('click', () => {
+      // Reset sliders and UI
+      document.querySelectorAll('.answer-range').forEach((input) => {
+        input.value = 3;
+        input.dataset.touched = 'false';
+        const idx = input.dataset.index;
+        updateSliderUI(
+          input,
+          document.getElementById(`bubble-${idx}`),
+          document.getElementById(`label-${idx}`),
+          document.getElementById(`emoji-${idx}`),
+          false
+        );
+      });
+      updateProgress();
+      resultsSection.classList.add('hidden');
+      // Reset chart
+      if (egogramChart) {
+        egogramChart.destroy();
+        egogramChart = null;
+      }
+      // Reset badges
+      dominantTitle.textContent = '—';
+      dominantEmoji.textContent = '🤔';
+      dominantDesc.textContent = '—';
+      dominantBadge.textContent = '—';
+      scoreParent.textContent = scoreAdulte.textContent = scoreEnfant.textContent = '—%';
+      functionalBreakdown.innerHTML = '';
+    });
+
+    btnPrint.addEventListener('click', () => window.print());
+
+    // Init
+    renderQuestions();
+  </script>
+</body>
+</html>
